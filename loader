@@ -9,27 +9,24 @@ local function rnd(len)
     return s
 end
 
--- ============================================================
--- FOX FREEZER COLOUR PALETTE
--- ============================================================
 local C = {
-    bg      = Color3.fromRGB(4,   4,   7),      -- same dark base as FoxFreezer
-    card    = Color3.fromRGB(12,  7,   10),     -- FoxFreezer CARD colour
-    cell    = Color3.fromRGB(18,  8,   14),     -- slightly lighter
-    log     = Color3.fromRGB(8,   4,   7),
-    border  = Color3.fromRGB(255, 30,  45),     -- FoxFreezer RED stroke
-    dim     = Color3.fromRGB(40,  14,  22),
-    grid    = Color3.fromRGB(255, 30,  45),     -- red grid
-    accent  = Color3.fromRGB(255, 30,  45),     -- FoxFreezer RED
-    bright  = Color3.fromRGB(255, 235, 235),    -- FoxFreezer title text
-    text    = Color3.fromRGB(248, 200, 200),
-    subtext = Color3.fromRGB(120, 40,  55),
-    muted   = Color3.fromRGB(90,  18,  28),
-    done    = Color3.fromRGB(255, 30,  45),
+    bg      = Color3.fromRGB(4,   1,   8),
+    card    = Color3.fromRGB(10,  2,   18),
+    cell    = Color3.fromRGB(14,  2,   22),
+    log     = Color3.fromRGB(6,   1,   12),
+    border  = Color3.fromRGB(80,  0,   130),
+    dim     = Color3.fromRGB(40,  0,   70),
+    grid    = Color3.fromRGB(150, 0,   220),
+    accent  = Color3.fromRGB(160, 10,  220),
+    bright  = Color3.fromRGB(210, 80,  255),
+    text    = Color3.fromRGB(180, 60,  230),
+    subtext = Color3.fromRGB(90,  0,   130),
+    muted   = Color3.fromRGB(70,  0,   110),
+    done    = Color3.fromRGB(200, 80,  255),
 }
 
 -- ============================================================
--- GUI ROOT  — semi-transparent so game is visible behind
+-- GUI ROOT
 -- ============================================================
 local loadGui = Instance.new("ScreenGui")
 loadGui.Name           = rnd(12)
@@ -38,118 +35,131 @@ loadGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 loadGui.IgnoreGuiInset = true
 
 local loadBg = Instance.new("Frame", loadGui)
-loadBg.Size                   = UDim2.new(1, 0, 1, 0)
-loadBg.BackgroundColor3       = C.bg
-loadBg.BackgroundTransparency = 0.30   -- semi-transparent: game visible behind
-loadBg.BorderSizePixel        = 0
-loadBg.ZIndex                 = 1
+loadBg.Size             = UDim2.new(1, 0, 1, 0)
+loadBg.BackgroundColor3 = C.bg
+loadBg.BorderSizePixel  = 0
+loadBg.ZIndex           = 1
 
--- Subtle red grid overlay (very faint)
-for i = 1, 10 do
+-- Purple grid lines horizontal
+for i = 1, 12 do
     local g = Instance.new("Frame", loadBg)
     g.BackgroundColor3       = C.grid
-    g.BackgroundTransparency = 0.97
+    g.BackgroundTransparency = 0.94
     g.BorderSizePixel        = 0
     g.Size                   = UDim2.new(1, 0, 0, 1)
-    g.Position               = UDim2.new(0, 0, i/10, 0)
+    g.Position               = UDim2.new(0, 0, i/12, 0)
     g.ZIndex                 = 2
 end
-for i = 1, 16 do
+-- Purple grid lines vertical
+for i = 1, 18 do
     local g = Instance.new("Frame", loadBg)
     g.BackgroundColor3       = C.grid
-    g.BackgroundTransparency = 0.97
+    g.BackgroundTransparency = 0.94
     g.BorderSizePixel        = 0
     g.Size                   = UDim2.new(0, 1, 1, 0)
-    g.Position               = UDim2.new(i/16, 0, 0, 0)
+    g.Position               = UDim2.new(i/18, 0, 0, 0)
     g.ZIndex                 = 2
 end
 
--- Red corner brackets (Fox Freezer style sharp corners)
+-- Vignette (dark radial edges)
+local vignette = Instance.new("Frame", loadBg)
+vignette.Size             = UDim2.new(1, 0, 1, 0)
+vignette.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+vignette.BackgroundTransparency = 0.45
+vignette.BorderSizePixel  = 0
+vignette.ZIndex           = 3
+local vigGrad = Instance.new("UIGradient", vignette)
+vigGrad.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 1),
+    NumberSequenceKeypoint.new(0.45, 1),
+    NumberSequenceKeypoint.new(1, 0),
+})
+vigGrad.Rotation = 0
+
+-- Purple corner brackets
 local function makeCorner(xScale, yScale, xFlip, yFlip)
-    local sz = 26
+    local sz = 28
     local function ln(w, h, xo, yo)
         local f = Instance.new("Frame", loadBg)
         f.BackgroundColor3       = C.accent
-        f.BackgroundTransparency = 0.2
+        f.BackgroundTransparency = 0.3
         f.BorderSizePixel        = 0
         f.ZIndex                 = 5
         f.Size                   = UDim2.new(0, w, 0, h)
         f.Position               = UDim2.new(xScale, xFlip*xo + (xFlip < 0 and -w or 0),
                                               yScale, yFlip*yo + (yFlip < 0 and -h or 0))
     end
-    ln(sz, 2, 14, 14)
-    ln(2, sz, 14, 14)
+    ln(sz, 2, 16, 16)
+    ln(2, sz, 16, 16)
 end
 makeCorner(0, 0,  1,  1)
 makeCorner(1, 0, -1,  1)
 makeCorner(0, 1,  1, -1)
 makeCorner(1, 1, -1, -1)
 
--- Thin scan line
+-- Purple scan line
 local scanLine = Instance.new("Frame", loadBg)
-scanLine.Size                   = UDim2.new(1, 0, 0, 1)
+scanLine.Size                   = UDim2.new(1, 0, 0, 2)
 scanLine.BackgroundColor3       = C.accent
-scanLine.BackgroundTransparency = 0.78
+scanLine.BackgroundTransparency = 0.82
 scanLine.BorderSizePixel        = 0
 scanLine.ZIndex                 = 4
 
 -- ============================================================
--- CARD  — Fox Freezer style: dark card, red UIStroke
+-- CARD
 -- ============================================================
-local CARD_W, CARD_H = 400, 330
+local CARD_W, CARD_H = 380, 318
 local card = Instance.new("Frame", loadBg)
 card.Size             = UDim2.new(0, CARD_W, 0, CARD_H)
 card.Position         = UDim2.new(0.5, -CARD_W/2, 0.5, -CARD_H/2)
 card.BackgroundColor3 = C.card
 card.BorderSizePixel  = 0
 card.ZIndex           = 10
-Instance.new("UICorner", card).CornerRadius = UDim.new(0, 18)   -- matches FoxFreezer rx=18
-
+Instance.new("UICorner", card).CornerRadius = UDim.new(0, 14)
 local cardStroke = Instance.new("UIStroke", card)
-cardStroke.Color     = C.border   -- red, same as FoxFreezer mainStroke
+cardStroke.Color     = C.border
 cardStroke.Thickness = 1.5
 
--- Red top accent line (same as FoxFreezer headerLine)
+-- Purple top accent bar
 local topBar = Instance.new("Frame", card)
-topBar.Size             = UDim2.new(1, -44, 0, 1)
-topBar.Position         = UDim2.new(0, 22, 0, 80)   -- positioned at header bottom like FoxFreezer
+topBar.Size             = UDim2.new(1, 0, 0, 2)
+topBar.Position         = UDim2.new(0, 0, 0, 0)
 topBar.BackgroundColor3 = C.accent
-topBar.BackgroundTransparency = 0.18
 topBar.BorderSizePixel  = 0
 topBar.ZIndex           = 11
+Instance.new("UICorner", topBar).CornerRadius = UDim.new(0, 14)
 
--- ── HEADER ROW (mirrors FoxFreezer header layout)
+-- ── HEADER ROW
 local headerFrame = Instance.new("Frame", card)
 headerFrame.BackgroundTransparency = 1
-headerFrame.Size     = UDim2.new(1, -24, 0, 70)
-headerFrame.Position = UDim2.new(0, 14, 0, 8)
+headerFrame.Size     = UDim2.new(1, -24, 0, 62)
+headerFrame.Position = UDim2.new(0, 14, 0, 10)
 headerFrame.ZIndex   = 11
 
--- Title label — SciFi font like FoxFreezer
 local titleLbl = Instance.new("TextLabel", headerFrame)
 titleLbl.BackgroundTransparency = 1
-titleLbl.Size           = UDim2.new(1, -80, 0, 38)
-titleLbl.Position       = UDim2.new(0, 0, 0, 6)
-titleLbl.Text           = "FOX FREEZER"
+titleLbl.Size           = UDim2.new(1, -72, 0, 28)
+titleLbl.Position       = UDim2.new(0, 0, 0, 2)
+titleLbl.Text           = "VOID EXTERNAL"
 titleLbl.TextColor3     = C.bright
-titleLbl.TextSize       = 34
-titleLbl.Font           = Enum.Font.SciFi   -- FoxFreezer font
+titleLbl.TextSize       = 22
+titleLbl.Font           = Enum.Font.GothamBlack
 titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 titleLbl.ZIndex         = 12
 
 local subLbl = Instance.new("TextLabel", headerFrame)
 subLbl.BackgroundTransparency = 1
-subLbl.Size           = UDim2.new(1, -80, 0, 18)
-subLbl.Position       = UDim2.new(0, 0, 0, 46)
+subLbl.Size           = UDim2.new(1, -72, 0, 14)
+subLbl.Position       = UDim2.new(0, 0, 0, 30)
 subLbl.Text           = "INITIALIZING SYSTEMS"
 subLbl.TextColor3     = C.muted
-subLbl.TextSize       = 12
-subLbl.Font           = Enum.Font.SciFi
+subLbl.TextSize       = 9
+subLbl.Font           = Enum.Font.Code
 subLbl.TextXAlignment = Enum.TextXAlignment.Left
 subLbl.ZIndex         = 12
 
--- Spinning ring (top-right of header, like FoxFreezer logo area)
-local RING = 54
+-- Spinning ring
+local RING = 58
 local ringOuter = Instance.new("Frame", headerFrame)
 ringOuter.BackgroundTransparency = 1
 ringOuter.Size     = UDim2.new(0, RING, 0, RING)
@@ -178,63 +188,70 @@ ringPct.Size           = UDim2.new(1, 0, 1, 0)
 ringPct.Text           = "0%"
 ringPct.TextColor3     = C.bright
 ringPct.TextSize       = 13
-ringPct.Font           = Enum.Font.SciFi
+ringPct.Font           = Enum.Font.Code
 ringPct.TextXAlignment = Enum.TextXAlignment.Center
 ringPct.TextYAlignment = Enum.TextYAlignment.Center
 ringPct.ZIndex         = 14
 
--- ── 3 STAT CELLS  — styled like FoxFreezer cards (dark bg, red stroke, rounded)
+-- Header divider
+local div1 = Instance.new("Frame", card)
+div1.BackgroundColor3 = C.dim
+div1.BorderSizePixel  = 0
+div1.Size             = UDim2.new(1, -28, 0, 1)
+div1.Position         = UDim2.new(0, 14, 0, 78)
+div1.ZIndex           = 11
+
+-- ── 3 STAT CELLS
 local moduleData = {
     { label="SPEED",  sub="WalkSpeed ctrl" },
     { label="STEAL",  sub="Auto steal sys" },
     { label="COMBAT", sub="Auto duel sys"  },
 }
 local modCells = {}
-local CELL_Y  = 98
-local CELL_W  = (CARD_W - 28 - 12) / 3
+local CELL_Y = 86
+local CELL_W = (CARD_W - 28 - 12) / 3
 
 for i, m in ipairs(moduleData) do
     local cell = Instance.new("Frame", card)
     cell.BackgroundColor3 = C.cell
     cell.BorderSizePixel  = 0
-    cell.Size             = UDim2.new(0, CELL_W, 0, 66)
+    cell.Size             = UDim2.new(0, CELL_W, 0, 64)
     cell.Position         = UDim2.new(0, 14 + (i-1)*(CELL_W+6), 0, CELL_Y)
     cell.ZIndex           = 11
-    Instance.new("UICorner", cell).CornerRadius = UDim.new(0, 10)   -- FoxFreezer card rx=10
-
+    Instance.new("UICorner", cell).CornerRadius = UDim.new(0, 8)
     local cs = Instance.new("UIStroke", cell)
-    cs.Color = C.border; cs.Thickness = 1.15; cs.Transparency = 0.08  -- mirrors FoxFreezer cardStroke
+    cs.Color = C.dim; cs.Thickness = 1
 
     local clbl = Instance.new("TextLabel", cell)
     clbl.BackgroundTransparency = 1
-    clbl.Size           = UDim2.new(1, -8, 0, 14)
+    clbl.Size           = UDim2.new(1, -8, 0, 12)
     clbl.Position       = UDim2.new(0, 10, 0, 8)
     clbl.Text           = m.label
     clbl.TextColor3     = C.muted
-    clbl.TextSize       = 9
-    clbl.Font           = Enum.Font.SciFi
+    clbl.TextSize       = 8
+    clbl.Font           = Enum.Font.Code
     clbl.TextXAlignment = Enum.TextXAlignment.Left
     clbl.ZIndex         = 12
 
     local cval = Instance.new("TextLabel", cell)
     cval.BackgroundTransparency = 1
-    cval.Size           = UDim2.new(1, -8, 0, 18)
+    cval.Size           = UDim2.new(1, -8, 0, 16)
     cval.Position       = UDim2.new(0, 10, 0, 22)
-    cval.Text           = "Inactive"
-    cval.TextColor3     = C.accent   -- red "Inactive" like FoxFreezer status
-    cval.TextSize       = 14
-    cval.Font           = Enum.Font.SciFi
+    cval.Text           = "PENDING"
+    cval.TextColor3     = C.muted
+    cval.TextSize       = 12
+    cval.Font           = Enum.Font.GothamBlack
     cval.TextXAlignment = Enum.TextXAlignment.Left
     cval.ZIndex         = 12
 
     local csub = Instance.new("TextLabel", cell)
     csub.BackgroundTransparency = 1
-    csub.Size           = UDim2.new(1, -8, 0, 11)
-    csub.Position       = UDim2.new(0, 10, 0, 40)
+    csub.Size           = UDim2.new(1, -8, 0, 10)
+    csub.Position       = UDim2.new(0, 10, 0, 38)
     csub.Text           = m.sub
     csub.TextColor3     = C.muted
-    csub.TextSize       = 8
-    csub.Font           = Enum.Font.SciFi
+    csub.TextSize       = 7
+    csub.Font           = Enum.Font.Code
     csub.TextXAlignment = Enum.TextXAlignment.Left
     csub.ZIndex         = 12
 
@@ -242,7 +259,7 @@ for i, m in ipairs(moduleData) do
     ctrack.BackgroundColor3 = C.dim
     ctrack.BorderSizePixel  = 0
     ctrack.Size             = UDim2.new(1, -20, 0, 3)
-    ctrack.Position         = UDim2.new(0, 10, 0, 55)
+    ctrack.Position         = UDim2.new(0, 10, 0, 52)
     ctrack.ZIndex           = 12
     ctrack.ClipsDescendants = true
     Instance.new("UICorner", ctrack).CornerRadius = UDim.new(1, 0)
@@ -257,17 +274,16 @@ for i, m in ipairs(moduleData) do
     table.insert(modCells, { cell=cell, cval=cval, cfill=cfill, cs=cs })
 end
 
--- Divider below cells
+-- Cells divider
 local div2 = Instance.new("Frame", card)
-div2.BackgroundColor3 = C.border
-div2.BackgroundTransparency = 0.82
+div2.BackgroundColor3 = C.dim
 div2.BorderSizePixel  = 0
-div2.Size             = UDim2.new(1, -44, 0, 1)
-div2.Position         = UDim2.new(0, 22, 0, CELL_Y + 72)
+div2.Size             = UDim2.new(1, -28, 0, 1)
+div2.Position         = UDim2.new(0, 14, 0, CELL_Y + 70)
 div2.ZIndex           = 11
 
 -- ── LOG BOX
-local LOG_Y = CELL_Y + 78
+local LOG_Y = CELL_Y + 76
 local logBox = Instance.new("Frame", card)
 logBox.BackgroundColor3 = C.log
 logBox.BorderSizePixel  = 0
@@ -275,9 +291,9 @@ logBox.Size             = UDim2.new(1, -28, 0, 72)
 logBox.Position         = UDim2.new(0, 14, 0, LOG_Y)
 logBox.ZIndex           = 11
 logBox.ClipsDescendants = true
-Instance.new("UICorner", logBox).CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", logBox).CornerRadius = UDim.new(0, 7)
 local logStroke = Instance.new("UIStroke", logBox)
-logStroke.Color = C.border; logStroke.Thickness = 1.1; logStroke.Transparency = 0.08
+logStroke.Color = C.dim; logStroke.Thickness = 1
 
 local logLines = {}
 for i = 1, 3 do
@@ -288,7 +304,7 @@ for i = 1, 3 do
     ll.Text           = ""
     ll.TextColor3     = C.muted
     ll.TextSize       = 9
-    ll.Font           = Enum.Font.SciFi
+    ll.Font           = Enum.Font.Code
     ll.TextXAlignment = Enum.TextXAlignment.Left
     ll.ZIndex         = 12
     table.insert(logLines, ll)
@@ -300,7 +316,7 @@ cursorLbl.Size           = UDim2.new(0, 10, 0, 14)
 cursorLbl.Text           = "█"
 cursorLbl.TextColor3     = C.accent
 cursorLbl.TextSize       = 9
-cursorLbl.Font           = Enum.Font.SciFi
+cursorLbl.Font           = Enum.Font.Code
 cursorLbl.TextXAlignment = Enum.TextXAlignment.Left
 cursorLbl.Visible        = false
 cursorLbl.ZIndex         = 13
@@ -310,7 +326,7 @@ local BAR_Y = LOG_Y + 80
 local barTrack = Instance.new("Frame", card)
 barTrack.BackgroundColor3 = C.dim
 barTrack.BorderSizePixel  = 0
-barTrack.Size             = UDim2.new(1, -28, 0, 4)
+barTrack.Size             = UDim2.new(1, -28, 0, 3)
 barTrack.Position         = UDim2.new(0, 14, 0, BAR_Y)
 barTrack.ZIndex           = 11
 barTrack.ClipsDescendants = true
@@ -325,33 +341,33 @@ Instance.new("UICorner", barFill).CornerRadius = UDim.new(1, 0)
 
 -- Bar glow tip
 local barGlow = Instance.new("Frame", barFill)
-barGlow.BackgroundColor3       = Color3.fromRGB(255, 100, 120)
+barGlow.BackgroundColor3       = Color3.fromRGB(200, 150, 255)
 barGlow.BackgroundTransparency = 0.35
 barGlow.BorderSizePixel        = 0
-barGlow.Size                   = UDim2.new(0, 18, 1, 0)
-barGlow.Position               = UDim2.new(1, -18, 0, 0)
+barGlow.Size                   = UDim2.new(0, 20, 1, 0)
+barGlow.Position               = UDim2.new(1, -20, 0, 0)
 barGlow.ZIndex                 = 13
 Instance.new("UICorner", barGlow).CornerRadius = UDim.new(0, 2)
 
 local statusLbl = Instance.new("TextLabel", card)
 statusLbl.BackgroundTransparency = 1
-statusLbl.Size           = UDim2.new(1, -80, 0, 16)
-statusLbl.Position       = UDim2.new(0, 14, 0, BAR_Y + 10)
+statusLbl.Size           = UDim2.new(1, -80, 0, 14)
+statusLbl.Position       = UDim2.new(0, 14, 0, BAR_Y + 8)
 statusLbl.Text           = "Initializing..."
 statusLbl.TextColor3     = C.subtext
-statusLbl.TextSize       = 11
-statusLbl.Font           = Enum.Font.SciFi
+statusLbl.TextSize       = 9
+statusLbl.Font           = Enum.Font.Code
 statusLbl.TextXAlignment = Enum.TextXAlignment.Left
 statusLbl.ZIndex         = 11
 
 local pctLbl = Instance.new("TextLabel", card)
 pctLbl.BackgroundTransparency = 1
-pctLbl.Size           = UDim2.new(0, 50, 0, 16)
-pctLbl.Position       = UDim2.new(1, -64, 0, BAR_Y + 10)
+pctLbl.Size           = UDim2.new(0, 50, 0, 14)
+pctLbl.Position       = UDim2.new(1, -64, 0, BAR_Y + 8)
 pctLbl.Text           = "0%"
 pctLbl.TextColor3     = C.accent
-pctLbl.TextSize       = 12
-pctLbl.Font           = Enum.Font.SciFi
+pctLbl.TextSize       = 10
+pctLbl.Font           = Enum.Font.Code
 pctLbl.TextXAlignment = Enum.TextXAlignment.Right
 pctLbl.ZIndex         = 11
 
@@ -364,24 +380,25 @@ local loadDone = false
 task.spawn(function()
     while not loadDone do
         TweenService:Create(scanLine,
-            TweenInfo.new(2.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
-            {Position = UDim2.new(0,0,1,-1)}):Play()
-        task.wait(2.8)
+            TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {Position = UDim2.new(0,0,1,-2)}):Play()
+        task.wait(2.5)
         TweenService:Create(scanLine,
-            TweenInfo.new(2.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
             {Position = UDim2.new(0,0,0,0)}):Play()
-        task.wait(2.8)
+        task.wait(2.5)
     end
 end)
 
--- Ring spin
+-- Ring spin (arc style)
 task.spawn(function()
     while not loadDone do
         ringArc.Rotation = 0
         local t = TweenService:Create(ringArc,
             TweenInfo.new(1.1, Enum.EasingStyle.Linear),
             {Rotation = 360})
-        t:Play(); t.Completed:Wait()
+        t:Play()
+        t.Completed:Wait()
     end
 end)
 
@@ -474,13 +491,13 @@ local function applyStage(sc)
     if sc.modIdx then
         if sc.modIdx > 1 then
             local prev = modCells[sc.modIdx - 1]
-            prev.cval.Text       = "Active"     -- match FoxFreezer "Active" label
-            prev.cval.TextColor3 = C.bright
+            prev.cval.Text       = "READY"
+            prev.cval.TextColor3 = C.accent
             TweenService:Create(prev.cfill, TweenInfo.new(0.3),
                 {Size = UDim2.new(1, 0, 1, 0)}):Play()
         end
         local cur = modCells[sc.modIdx]
-        cur.cval.Text       = "Loading..."
+        cur.cval.Text       = "LOADING"
         cur.cval.TextColor3 = C.text
         TweenService:Create(cur.cfill,
             TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
@@ -570,26 +587,26 @@ loadDone = true
 cursorLbl.Visible = false
 
 for _, mc in ipairs(modCells) do
-    mc.cval.Text       = "Active"   -- FoxFreezer uses "Active" not "READY"
-    mc.cval.TextColor3 = C.bright
+    mc.cval.Text       = "READY"
+    mc.cval.TextColor3 = C.done
     TweenService:Create(mc.cfill, TweenInfo.new(0.4),
-        {Size = UDim2.new(1, 0, 1, 0)}):Play()
+        {Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = C.done}):Play()
 end
 
 ringPct.Text        = "100%"
-ringPct.TextColor3  = C.bright
-ringArcS.Color      = C.bright
+ringPct.TextColor3  = C.done
+ringArcS.Color      = C.done
 pctLbl.Text         = "100%"
-pctLbl.TextColor3   = C.bright
-statusLbl.Text      = "All systems ready"
-statusLbl.TextColor3 = C.bright
+pctLbl.TextColor3   = C.done
+statusLbl.Text      = "Ready!"
+statusLbl.TextColor3 = C.done
 subLbl.Text         = "ALL SYSTEMS READY"
-subLbl.TextColor3   = C.bright
-titleLbl.TextColor3 = C.bright
+subLbl.TextColor3   = C.done
+titleLbl.TextColor3 = C.done
 TweenService:Create(barFill, TweenInfo.new(0.3),
-    {Size = UDim2.new(1,0,1,0)}):Play()
+    {BackgroundColor3 = C.done, Size = UDim2.new(1,0,1,0)}):Play()
 pushLog("[ DONE  ]  all modules ready — have fun", true)
-if logLines[3] then logLines[3].TextColor3 = C.bright end
+if logLines[3] then logLines[3].TextColor3 = C.done end
 
 task.wait(1.2)
 
@@ -617,4 +634,4 @@ end
 task.wait(0.55)
 loadGui:Destroy()
 
-print("Fox Freezer — Loading complete!")
+print("Void External — Loading complete!")
